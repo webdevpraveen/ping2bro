@@ -1,0 +1,85 @@
+{
+  "name": "ping2bro",
+  "displayName": "Ping2Bro",
+  "description": "Code with your friends. See who's active, chat inside VS Code.",
+  "version": "0.1.1",
+  "publisher": "webdevpraveen",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "icon": "media/icon.png",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ping2bro.login",
+        "title": "Ping2Bro: Login"
+      },
+      {
+        "command": "ping2bro.register",
+        "title": "Ping2Bro: Create Account"
+      },
+      {
+        "command": "ping2bro.logout",
+        "title": "Ping2Bro: Logout"
+      },
+      {
+        "command": "ping2bro.showStatus",
+        "title": "Ping2Bro: Show My Status"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ping2bro-container",
+          "title": "Ping2Bro",
+          "icon": "$(broadcast)"
+        }
+      ]
+    },
+    "views": {
+      "ping2bro-container": [
+        {
+          "type": "webview",
+          "id": "ping2bro-sidebar",
+          "name": "Friends & Chat"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Ping2Bro",
+      "properties": {
+        "ping2bro.idleTimeoutMinutes": {
+          "type": "number",
+          "default": 5,
+          "description": "Minutes of inactivity before status changes to idle"
+        },
+        "ping2bro.showNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show notifications when friends come online"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.74.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "firebase": "^10.12.0"
+  }
+}
