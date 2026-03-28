@@ -4,4 +4,6 @@ src/**
 .gitignore
 **/tsconfig.json
 **/*.map
+.env
+.env.*
 media/icon.svg
