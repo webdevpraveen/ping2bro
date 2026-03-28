@@ -23,6 +23,11 @@ let currentUserId: string = '';
 let currentUserName: string = '';
 let currentUserPhoto: string = '';
 
+// Optimization: keep track of what we last sent to Firebase
+// to prevent spamming the database on every single keystroke.
+let lastSentStatus: string = '';
+let lastSentFile: string = '';
+
 // How long to wait before marking as idle (in milliseconds)
 // Read from VS Code settings (default: 5 minutes)
 function getIdleTimeout(): number {
@@ -142,6 +147,22 @@ function markActive(fileName: string): void {
     idleTimer = null;
   }
 
+  // Start a new idle timer
+  // If no activity for idleTimeout ms, automatically go idle
+  idleTimer = setTimeout(() => {
+    markIdle();
+  }, getIdleTimeout());
+
+  // OPTIMIZATION: Prevent spamming Firebase with the exact same data.
+  // We only want to send a network request if the user's status 
+  // changed from idle/offline to active, or if they switched files.
+  if (lastSentStatus === 'active' && lastSentFile === fileName) {
+    return; 
+  }
+
+  lastSentStatus = 'active';
+  lastSentFile = fileName;
+
   // Write active status to Firebase
   const presenceData: PresenceData = {
     name: currentUserName,
@@ -151,12 +172,6 @@ function markActive(fileName: string): void {
     photoURL: currentUserPhoto
   };
   updatePresence(currentUserId, presenceData);
-
-  // Start a new idle timer
-  // If no activity for idleTimeout ms, automatically go idle
-  idleTimer = setTimeout(() => {
-    markIdle();
-  }, getIdleTimeout());
 }
 
 /**
@@ -169,6 +184,14 @@ function markIdle(): void {
     clearTimeout(idleTimer);
     idleTimer = null;
   }
+
+  // OPTIMIZATION: Do not send if already idle
+  if (lastSentStatus === 'idle') {
+    return;
+  }
+
+  lastSentStatus = 'idle';
+  lastSentFile = '';
 
   const presenceData: PresenceData = {
     name: currentUserName,
@@ -191,6 +214,9 @@ export function markOfflineNow(): void {
   if (!currentUserId) {
     return;  // Not logged in, nothing to do
   }
+
+  lastSentStatus = 'offline';
+  lastSentFile = '';
 
   const presenceData: PresenceData = {
     name: currentUserName,
