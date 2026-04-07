@@ -2,7 +2,7 @@
   "name": "ping2bro",
   "displayName": "Ping2Bro",
   "description": "Code with your friends. See who's active, chat inside VS Code.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "webdevpraveen",
   "engines": {
     "vscode": "^1.74.0"
@@ -79,7 +79,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "dotenv": "^16.3.1",
     "firebase": "^10.12.0"
   }
 }
