@@ -67,8 +67,10 @@ export class Ping2BroSidebarProvider implements vscode.WebviewViewProvider {
     // Set the HTML content for the sidebar
     webviewView.webview.html = this._getWebviewHTML();
 
-    // ── Start Firebase listeners (only when user is logged in) ──
-    this._setupFirebaseListeners();
+    // ── Sync Webview State ──
+    // If the webview is opened AFTER the user already logged in (e.g. from Auto-Login),
+    // it will be stuck on the Login screen unless we explicitly tell it the user is logged in.
+    this._syncWebviewState();
 
     // ── Listen to messages FROM the webview ──
     webviewView.webview.onDidReceiveMessage(async (message) => {
@@ -140,6 +142,18 @@ export class Ping2BroSidebarProvider implements vscode.WebviewViewProvider {
   // ─────────────────────────────────────────────────────────────────
   // FIREBASE LISTENER MANAGEMENT
   // ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Syncs the latest authentication state down to the webview UI.
+   * Called when the webview is initially resolved.
+   */
+  private async _syncWebviewState(): Promise<void> {
+    const user = auth.currentUser;
+    if (user) {
+      const pingCode = await getPingCodeForUser(user.uid) || '---';
+      this.notifyLogin(user.displayName || 'Developer', user.photoURL || '', user.uid, pingCode);
+    }
+  }
 
   /**
    * Sets up all Firebase real-time listeners.
