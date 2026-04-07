@@ -106,14 +106,22 @@ export class Ping2BroSidebarProvider implements vscode.WebviewViewProvider {
 
         case 'acceptRequest':
           // User accepted a friend request
-          await acceptFriendRequest(user.uid, message.friendUid);
-          this._postToWebview({ type: 'friendActionResult', success: true, message: 'Friend added! 🎉' });
+          try {
+            await acceptFriendRequest(user.uid, message.friendUid);
+            this._postToWebview({ type: 'friendActionResult', success: true, message: 'Friend added! 🎉' });
+          } catch(e: any) {
+            this._postToWebview({ type: 'friendActionResult', success: false, message: 'Failed to accept: ' + e.message });
+          }
           break;
 
         case 'declineRequest':
           // User declined a friend request
-          await declineFriendRequest(user.uid, message.friendUid);
-          this._postToWebview({ type: 'friendActionResult', success: true, message: 'Request declined.' });
+          try {
+            await declineFriendRequest(user.uid, message.friendUid);
+            this._postToWebview({ type: 'friendActionResult', success: true, message: 'Request declined.' });
+          } catch(e: any) {
+             this._postToWebview({ type: 'friendActionResult', success: false, message: 'Failed to decline: ' + e.message });
+          }
           break;
 
         case 'openChat':

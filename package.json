@@ -2,7 +2,7 @@
   "name": "ping2bro",
   "displayName": "Ping2Bro",
   "description": "Code with your friends. See who's active, chat inside VS Code.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "webdevpraveen",
   "engines": {
     "vscode": "^1.74.0"

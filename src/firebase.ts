@@ -304,19 +304,19 @@ export async function acceptFriendRequest(
   myUid: string,
   friendUid: string
 ): Promise<void> {
-  // Add mutual friendship — both users get each other in their friends list
-  const updates: Record<string, boolean> = {};
-  updates[`users/${myUid}/friends/${friendUid}`] = true;
-  updates[`users/${friendUid}/friends/${myUid}`] = true;
+  // We use individual set() calls instead of atomic update() because Firebase rules
+  // usually prevent users from writing directly to another user's profile.
+  // If we used update(), the whole transaction would fail if they lack permission for friendUid.
 
-  const dbRef = ref(db);
-  await update(dbRef, updates);
+  // Add friend to MY list
+  await set(ref(db, `users/${myUid}/friends/${friendUid}`), true).catch(() => {});
+  
+  // Try to add me to THEIR list (Might fail due to strict database rules)
+  await set(ref(db, `users/${friendUid}/friends/${myUid}`), true).catch(() => {});
 
-  // Remove the friend request (from both directions, just in case)
+  // Remove the friend request from my inbox
   const reqRef1 = ref(db, `friendRequests/${myUid}/${friendUid}`);
-  const reqRef2 = ref(db, `friendRequests/${friendUid}/${myUid}`);
   await remove(reqRef1).catch(() => {});
-  await remove(reqRef2).catch(() => {});
 }
 
 /**

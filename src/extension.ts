@@ -55,7 +55,18 @@ export function activate(context: vscode.ExtensionContext): void {
       const password = await context.secrets.get('ping2bro.password');
       if (email && password) {
         console.log('Ping2Bro: Attempting auto-login...');
-        await loginWithEmail(email, password);
+        
+        // Show progress UI so user knows we are logging them back in!
+        await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: 'Ping2Bro: Restoring session...',
+            cancellable: false
+          },
+          async () => {
+            await loginWithEmail(email, password);
+          }
+        );
       }
     } catch (e) {
       console.log('Ping2Bro: Auto-login failed, clearing secrets.');
