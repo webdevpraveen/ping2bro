@@ -46,6 +46,25 @@ export function activate(context: vscode.ExtensionContext): void {
     )
   );
 
+  // ── Auto Login ──
+  // Firebase Node.js uses in-memory persistence, so users log out on restart.
+  // We use VS Code's secure SecretStorage to auto-login.
+  const performAutoLogin = async () => {
+    try {
+      const email = await context.secrets.get('ping2bro.email');
+      const password = await context.secrets.get('ping2bro.password');
+      if (email && password) {
+        console.log('Ping2Bro: Attempting auto-login...');
+        await loginWithEmail(email, password);
+      }
+    } catch (e) {
+      console.log('Ping2Bro: Auto-login failed, clearing secrets.');
+      await context.secrets.delete('ping2bro.email');
+      await context.secrets.delete('ping2bro.password');
+    }
+  };
+  performAutoLogin();
+
   // ── Listen to Auth State ──
   // This fires whenever user logs in or logs out
   onAuthChange(async (user) => {
@@ -119,6 +138,9 @@ export function activate(context: vscode.ExtensionContext): void {
           },
           async () => {
             await loginWithEmail(email, password);
+            // Save to secrets for auto-login
+            await context.secrets.store('ping2bro.email', email);
+            await context.secrets.store('ping2bro.password', password);
           }
         );
       } catch (error: any) {
@@ -155,6 +177,9 @@ export function activate(context: vscode.ExtensionContext): void {
           },
           async () => {
             await registerWithEmail(email, password);
+            // Save to secrets for auto-login
+            await context.secrets.store('ping2bro.email', email);
+            await context.secrets.store('ping2bro.password', password);
           }
         );
       } catch (error: any) {
@@ -178,6 +203,10 @@ export function activate(context: vscode.ExtensionContext): void {
 
       // Mark as offline before logging out
       markOfflineNow();
+
+      // Clear auto-login secrets
+      await context.secrets.delete('ping2bro.email');
+      await context.secrets.delete('ping2bro.password');
 
       await logoutUser();
       vscode.window.showInformationMessage('Ping2Bro: Logged out. See you! 👋');
