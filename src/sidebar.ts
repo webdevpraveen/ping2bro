@@ -210,16 +210,21 @@ export class Ping2BroSidebarProvider implements vscode.WebviewViewProvider {
     // Get my Ping Code for the request
     const myPingCode = await getPingCodeForUser(user.uid) || 'UNKNOWN';
 
-    // Send the friend request
-    const result = await sendFriendRequest(
-      user.uid,
-      targetUser.uid,
-      user.displayName || 'Developer',
-      user.photoURL || '',
-      myPingCode
-    );
+    try {
+      // Send the friend request
+      const result = await sendFriendRequest(
+        user.uid,
+        targetUser.uid,
+        user.displayName || 'Developer',
+        user.photoURL || '',
+        myPingCode
+      );
 
-    this._postToWebview({ type: 'friendActionResult', success: result.success, message: result.message });
+      this._postToWebview({ type: 'friendActionResult', success: result.success, message: result.message });
+    } catch (e: any) {
+      console.error('Ping2Bro add friend error:', e);
+      this._postToWebview({ type: 'friendActionResult', success: false, message: 'Failed: ' + (e.message || 'Unknown error') });
+    }
   }
 
   /**

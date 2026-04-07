@@ -272,12 +272,9 @@ export async function sendFriendRequest(
     return { success: false, message: 'You are already friends!' };
   }
 
-  // Check if a request already exists (in either direction)
-  const existingRef1 = ref(db, `friendRequests/${toUid}/${fromUid}`);
-  const existingSnap1 = await get(existingRef1);
-  if (existingSnap1.exists()) {
-    return { success: false, message: 'Friend request already sent!' };
-  }
+  // We cannot check if a request already exists in THEIR inbox
+  // because Firebase rules only allow users to read their OWN inboxes.
+  // This is completely fine — if we send it twice, it just updates the timestamp.
 
   // Check if THEY already sent US a request (auto-accept in that case)
   const existingRef2 = ref(db, `friendRequests/${fromUid}/${toUid}`);
