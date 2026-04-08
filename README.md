@@ -27,5 +27,6 @@ This extension contributes the following settings:
 * `ping2bro.idleTimeoutMinutes`: How many minutes of inactivity before you are marked as idle.
 
 ---
+---
  **Built with ❤️ for developers by @webdevpraveen**
 
